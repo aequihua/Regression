@@ -1,0 +1,80 @@
+---
+title: "Regression Models - Course Project"
+author: "Arturo Equihua"
+date: "Saturday, May 23rd, 2015"
+output:
+  pdf_document: default
+---
+# Executive Summary
+The Motor Trend magazine is evaluating the relationship between transmission type (automatic and manual) vs. the mileage per gallon (mpg). From a  dataset of car model statistics, and doing regression analysis, it is found that, even though manual transmission cars perform better in fuel economy than automatic transmission cars (avg 7.2 mpg of difference), the mileage per gallon can be much better explained by using a model with other two predictorvariables: **Weight** and **Engine Displacement**.
+
+# Exploratory analysis
+The data source is taken from the **mtcars** dataframe. A full description of it can be obtained by typing "?mtcars" in the R Studio session.  A quick and dirty boxplot chart, shown in the **Appendix**, tests the specific relationship between transmission (am) and mileage (mpg), finding a tendency of automatic cars to have less mileage per gallon than manual cars Also, in the **Appendix**, a pairs chart is shown to look at the other variables and discover potential strong relationships. From that chart there seems to be a strong relationship between mpg and other variables such as engine displacement (disp), HorsePower (hp) or weight (wt).
+
+# Regression Analysis
+## Transmission vs. mileage per gallon
+A simple regression model is constructed,  with transmission type as predictor (coded as 1 or 0, where 0 is automatic and 1 is manual), and fuel economy as outcome (miles per gallon, or mpg).
+
+```{r, echo=FALSE, results='markup',warning=FALSE}
+  library(datasets)
+  data(mtcars)
+  mtcarsfit1 <- lm(mpg ~ am, data = mtcars)
+  summary(mtcarsfit1)
+```
+
+The intercept and slope coefficients can be interpreted as follows: In average, automatic transmission achieves 17.147 mpg, whereas manual transmissions (that is, when the variable am = 1), provides additional 7.245 mpg (that is, 17.147 + 7.245 = 24.39 mpg). Just consider that the correlation coefficient is only 36%, which suggests there might be other variables that have stronger relationship with mpg than the transmission type.
+
+## Fit multiple variables vs. mileage per gallon
+The final question to address is what "best" mpg prediction model could be built with the existing variables in the mtcars dataset. Since some variables can be assumed related to each other (e.g. cylinders and engine displacement so only engine displacement is chosen). So it is only needed to test whether there is evidence to include both weight and displacement in the model, with a test of model difference in a hierarchical sequence:
+
+```{r, echo=FALSE, results='markup',warning=FALSE}
+  mtcarsbasemodel3 <- lm(1/mpg ~ wt, data = mtcars)
+  mtcarsaugmodel3 <- lm(1/mpg ~ wt + disp, data = mtcars)
+  anova(mtcarsbasemodel3, mtcarsaugmodel3)
+```
+This ANOVA result confirms that weight and displacement can both be predictors, as they each contribute uniquely to the model. Once having weight and engine displacement as confirmed predictors, the rest of variables is added to the ANOVA, to identify further variables to add to the model:
+
+```{r, echo=FALSE, results='markup',warning=FALSE}
+  mtcarsbasemodel4 <- lm(1/mpg ~ wt + disp, data = mtcars)
+  mtcarsaugmodel4 <- lm(1/mpg ~ wt + disp + drat + vs + gear + carb, data = mtcars)
+  anova(mtcarsbasemodel4, mtcarsaugmodel4)
+```
+
+The augmented model does not improve the degree of fit (F = 1.21, df = 4,25, p > .33). It is then accepted that the baseline model with weight and displacement as predictors is sufficient. The following analysis shows that:
+
+```{r, echo=FALSE, results='markup',warning=FALSE}
+  summary(mtcarsbasemodel4)
+```
+
+The model with weight and engine displacement explains 83% of the variance, and each of the coefficients for weight and engine displacement is statistically significantly greater than 0. 
+
+Some diagnostics of this model are reported in the Appendix. As shown there, the standardized residuals do not exhibit a cumulative distribution that matches the Normal distribution (there are some points clearly lower than the diagonal line). There also appear to be potential outliers in the various residual plots. However, the dataset is very small (only 32 cases), and it does not seem justified to drop any of the cases for this analysis.
+
+# Appendix
+## Boxplot Automatic vs. Manual
+The following is comparison of mileage per gallon between the manual vs. automatic transmission cars in the sample:
+
+```{r, echo=TRUE, results='markup',warning=FALSE}
+  boxplot(mpg~factor(am),data=mtcars, main="Automatic vs. Manual", 
+    xlab="Transmission (0=Automatic, 1=Manual)", ylab="Miles Per Gallon",
+    col=c("gold","darkgreen"))
+```
+
+## Pair Chart
+The following is a pair chart that looks for potential relationships between all the variables collected:
+
+```{r, echo=TRUE, results='markup',warning=FALSE}
+  pairs(mtcars)
+```
+
+## Model analysis
+The mpg regression model with weight and engine displacement found in the main report is plotted below, to graphically assess the quality of it:
+
+```{r, echo=TRUE, results='markup',warning=FALSE}
+  par(mfrow = c(2, 2))
+  plot(mtcarsbasemodel4)
+```
+
+
+
+

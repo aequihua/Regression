@@ -1,0 +1,17 @@
+{
+    "contents" : "\n# Pregunta 1\nx <- c(0.61, 0.93, 0.83, 0.35, 0.54, 0.16, 0.91, 0.62, 0.62)\ny <- c(0.67, 0.84, 0.6, 0.18, 0.85, 0.47, 1.1, 0.65, 0.36)\n\nfit <- lm(y~x)\n\n\n# Ejemplo de predict\nnewx <- c(0.16, 0.27, 0.34)\ncoef(fit)[1] + coef(fit)[2] * newx\n\npredict(fit, newdata = data.frame(carat = newx))\n\n\n# Ejemplo residuales\ndata(diamond)\ny <- diamond$price; x <- diamond$carat; n <- length(y)\nfit <- lm(y ~ x)\ne <- resid(fit)\nyhat <- predict(fit)\nmax(abs(e -(y - y\n            hat)))\n\n# Residual sigma\nsummary(fit)$sigma\n\n# Caso de mtcars- Preguntas 3 y 4\nlibrary(datasets)\ndata(mtcars)\ny <- mtcars$mpg\nx <- mtcars$wt\nn <- length(y)\nfit <- lm(y~I(x-mean(x))) # Saco la regresion lineal restando la media para que beta0 sea el valor esperado de Y en el X media\n# Saco los coeficientes de la regresion y su intervalo de confianza de los betas\n# El \"intervalo de confianza en el promedio\" es el intervalo de confianza de beta0\nsumCoef <- summary(fit)$coefficients\nsumCoef[1,1] + c(-1, 1) * qt(.975, df = fit$df) * sumCoef[1, 2] # Para beta0\n\n\n# Pregunta 5 - Inferencia (prediccion)\nnewdata <- data.frame(x = 3.0)\np2 <- predict(fit, newdata, interval = (\"prediction\"))\n\n# Pregunta 6 - Intervalo de confianza beta1\nsumCoef[2,1] + c(-1, 1) * qt(.975, df = fit$df) * sumCoef[2, 2] # Para beta1\n\n# Pregunta 9 - Comparar la suma de los cuadrados de los errores en el modelo \n# con X e Y vs. el modelo con solo el intercept\ny <- mtcars$mpg\nx <- mtcars$wt\nn <- length(y)\nfitxy <- lm(y~I(x-mean(x)))\nfitx <- lm(I(x~ x))\n\n",
+    "created" : 1431659882305.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1844068604",
+    "id" : "D0A4589F",
+    "lastKnownWriteTime" : 1431807104,
+    "path" : "~/GitHub/Regression/Quiz2Crap.R",
+    "project_path" : "Quiz2Crap.R",
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "source_on_save" : false,
+    "type" : "r_source"
+}
